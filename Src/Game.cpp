@@ -3,11 +3,15 @@
 #include "GameObject.hpp"		//Pour les différents objets en jeux
 #include "Map.hpp"
 #include "./ECS/Components.hpp"
+#include "Vector2D.hpp"
+#include "Collision.hpp"
 
-Map* map;
+Map* gameMap;
 Manager manager;
 
+SDL_Texture* level;
 SDL_Renderer* Game::renderer = nullptr;
+SDL_Event Game::event;
 
 auto& player(manager.addEntity());
 
@@ -37,16 +41,25 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 		isRunning = true;
 	}
 
-	map = new Map();
+	level = TextureManager::LoadTexture("assets/level.png");
+	gameMap = new Map();
 
-	player.addComponent<PositionComponent>(0, 0);
-	player.addComponent<SpriteComponent>("assets/player.png");
+	gameMap->LoadMap("assets/p23x21.map", 21, 23);
+
+	player.addComponent<TransformComponent>(308, 525);
+	player.addComponent<SpriteComponent>("assets/atlas.png", true);
+	player.addComponent<KeyboardController>();
+	player.addComponent<ColliderComponent>("player");
+	player.addGroup(groupPlayers);
 }
 
-void Game::handleEvents() {
+auto& tiles(manager.getGroup(Game::groupMap));
+auto& players(manager.getGroup(Game::groupPlayers));
+auto& ghosts(manager.getGroup(Game:: groupGhosts));
 
-	SDL_Event event;
+void Game::handleEvents() {
 	SDL_PollEvent(&event);
+
 	switch (event.type)
 	{
 	case SDL_QUIT:
@@ -60,12 +73,18 @@ void Game::handleEvents() {
 
 //Like in Unity
 void Game::update() {
+
+	SDL_Rect playerCol = player.getComponent<ColliderComponent>().collider;
+	Vector2D playerPos = player.getComponent<TransformComponent>().position;
+
 	manager.refresh();
 	manager.update();
 
-	if (player.getComponent<PositionComponent>().x() > 100)
-	{
-		player.getComponent<SpriteComponent>().setTex("assets/enemy.png");
+	for (auto c : tiles) {
+		SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
+		if (Collision::AABB(cCol, playerCol)) {
+			player.getComponent<TransformComponent>().position = playerPos;
+		}
 	}
 
 	//map->LoadMap(array);   If we had an external map file
@@ -75,8 +94,16 @@ void Game::update() {
 void Game::render() {
 	SDL_RenderClear(renderer);
 
-	map->DrawMap();		//We draw our map behind player / other entities
-	manager.draw();
+	for (auto& t : tiles) {
+		t->draw();
+	}
+	for (auto& p : players) {
+		p->draw();
+	}
+	for (auto& g : ghosts) {
+		g->draw();
+	}
+	TextureManager::Draw(level, SDL_Rect{ 0, 0, 651, 713 }, SDL_Rect{ 0, 0, 651, 713 }, SDL_FLIP_NONE);
 
 	SDL_RenderPresent(renderer);
 }

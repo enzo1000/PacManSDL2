@@ -3,6 +3,10 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <iostream>
+#include <vector>
+
+class ColliderComponent;
+
 using namespace std;
 
 class Game
@@ -20,6 +24,14 @@ public :
 	void clean();
 
 	static SDL_Renderer* renderer;
+	static SDL_Event event;
+
+	enum groupLabels : std::size_t {
+		groupMap,
+		groupPlayers,
+		groupGhosts,
+		groupColliders
+	};
 
 private :
 	int cnt = 0;			//Counter for Frame per Seconds

@@ -11,7 +11,7 @@ struct TransformComponent : public Component {
 	//64 is the dimensions of Pac-Man in SpriteComponent.hpp scaled down to 40
 	int height = 16;
 	int width = 16;
-	float scale = 2.5;
+	float scale = 1;
 
 	int speed = 3;
 

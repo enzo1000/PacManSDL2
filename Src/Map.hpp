@@ -10,8 +10,4 @@ public:
 	void AddTile(int id, int x, int y);
 
 private:
-	const char* mapFilePath;
-	int mapScale;
-	int tileSize;
-
 };

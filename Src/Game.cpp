@@ -13,6 +13,7 @@ SDL_Texture* level;
 SDL_Renderer* Game::renderer = nullptr;
 SDL_Event Game::event;
 
+
 auto& player(manager.addEntity());
 
 Game::Game() {
@@ -54,6 +55,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
 }
 
 auto& tiles(manager.getGroup(Game::groupMap));
+auto& colliders(manager.getGroup(Game::groupColliders));
 auto& players(manager.getGroup(Game::groupPlayers));
 auto& ghosts(manager.getGroup(Game:: groupGhosts));
 
@@ -80,14 +82,12 @@ void Game::update() {
 	manager.refresh();
 	manager.update();
 
-	for (auto c : tiles) {
+	for (auto c : colliders) {
 		SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
 		if (Collision::AABB(cCol, playerCol)) {
 			player.getComponent<TransformComponent>().position = playerPos;
 		}
 	}
-
-	//map->LoadMap(array);   If we had an external map file
 }
 
 //Render pipeline
@@ -96,6 +96,9 @@ void Game::render() {
 
 	for (auto& t : tiles) {
 		t->draw();
+	}
+	for (auto& c : colliders) {
+		c->draw();
 	}
 	for (auto& p : players) {
 		p->draw();

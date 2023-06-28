@@ -30,8 +30,6 @@ public:
 		}
 		transform = &entity->getComponent<TransformComponent>();
 
-		//ame::colliders.push_back(this);
-
 	}
 
 	void update() override {

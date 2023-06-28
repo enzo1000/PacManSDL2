@@ -46,7 +46,7 @@ void Map::LoadMap(std::string path, int sizeX, int sizeY) {
     mapFile.close();
 }
 
-void AddTile(int id, int x, int y) {
+void Map::AddTile(int id, int x, int y) {
     auto& tile(manager.addEntity());
     tile.addComponent<TileComponent>(x, y, 31, 31, id);
     tile.addGroup(Game::groupMap);
